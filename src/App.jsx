@@ -1,0 +1,120 @@
+import { useEffect, useState } from "react";
+import Countdown from "./components/Countdown.jsx";
+import EventsBoard from "./components/EventsBoard.jsx";
+import WeatherPanel from "./components/WeatherPanel.jsx";
+import ThemeToggle from "./components/ThemeToggle.jsx";
+
+function useTheme() {
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.classList.contains("dark") ? "dark" : "light"
+  );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  return [theme, () => setTheme((t) => (t === "dark" ? "light" : "dark"))];
+}
+
+/* The VII mark, redrawn as a vector so it follows the current text color. */
+function Mark(props) {
+  return (
+    <svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true" {...props}>
+      <polygon points="14,14 26,14 52,86 40,86" />
+      <rect x="60" y="14" width="11" height="72" />
+      <rect x="79" y="14" width="11" height="72" />
+    </svg>
+  );
+}
+
+function LocalClock() {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="hidden text-right sm:block">
+      <time
+        dateTime={now.toISOString()}
+        className="block font-mono text-sm tabular-nums"
+      >
+        {now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })}
+      </time>
+      <span className="font-mono text-[11px] text-umber dark:text-ash">
+        {now.toLocaleDateString([], {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        })}
+      </span>
+    </div>
+  );
+}
+
+export default function App() {
+  const [theme, toggleTheme] = useTheme();
+
+  return (
+    <div className="min-h-screen">
+      <div aria-hidden="true" className="ambient" />
+      {/* Ink rule along the top edge */}
+      <div aria-hidden="true" className="fixed inset-x-0 top-0 z-20 h-[2px] bg-ink dark:bg-paper/90" />
+
+      <div className="mx-auto max-w-6xl px-4 pb-10 pt-7 sm:px-6 sm:pt-9">
+        <header className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
+          <div className="flex items-center gap-3.5">
+            <Mark className="h-8 w-8 shrink-0" />
+            <div>
+              <h1 className="font-display text-base font-light uppercase leading-none tracking-[0.4em] sm:text-lg">
+                Venice&nbsp;II
+              </h1>
+              <p className="mt-1.5 text-xs text-umber dark:text-ash">
+                Countdown, events &amp; the week ahead
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <LocalClock />
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
+        </header>
+
+        <main className="grid gap-4 sm:gap-5 lg:grid-cols-12">
+          <section aria-label="Countdown" className="lg:col-span-5">
+            <Countdown />
+          </section>
+          <section aria-label="Weather" className="lg:col-span-7 lg:row-span-2">
+            <WeatherPanel />
+          </section>
+          <section aria-label="Upcoming events" className="lg:col-span-5">
+            <EventsBoard />
+          </section>
+        </main>
+
+        <footer className="mt-8 font-mono text-[11px] text-umber dark:text-ash">
+          <span>
+            Weather by{" "}
+            <a
+              href="https://open-meteo.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline decoration-dotted underline-offset-2 hover:text-ink dark:hover:text-paper"
+            >
+              Open-Meteo
+            </a>{" "}
+            — no API key
+          </span>
+        </footer>
+      </div>
+    </div>
+  );
+}

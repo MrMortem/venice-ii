@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: `dark` is toggled on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Raleway", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Surfaces — paper by day, warm black by night */
+  --color-paper: #faf8f3;
+  --color-nero: #131114;
+
+  /* Text */
+  --color-ink: #1a1814;
+  --color-umber: #6e675c;
+  --color-ash: #9a948a;
+
+  /* Accents drawn from the name: Venetian red, lagoon teal */
+  --color-venetian: #a63a3e;
+  --color-laguna: #2f6d62;
+}
+
+/* Chart colors that follow the theme (consumed as CSS vars by Recharts). */
+:root {
+  --chart-hi: #a63a3e;
+  --chart-lo: #2f6d62;
+  --chart-precip: #54504a;
+  --chart-grid: rgb(26 24 20 / 0.08);
+  --chart-axis: #6e675c;
+}
+.dark {
+  --chart-hi: #d97c76;
+  --chart-lo: #7fb8a8;
+  --chart-precip: #c9c3b6;
+  --chart-grid: rgb(250 248 243 / 0.09);
+  --chart-axis: #9a948a;
+}
+
+body {
+  @apply bg-paper font-body text-ink antialiased dark:bg-nero dark:text-paper;
+}
+
+/* Faint ambient washes — lagoon, Venetian red, sand */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(42rem 26rem at 10% -10%, rgb(47 109 98 / 0.07), transparent 62%),
+    radial-gradient(36rem 24rem at 92% 0%, rgb(166 58 62 / 0.05), transparent 62%),
+    radial-gradient(34rem 22rem at 65% 105%, rgb(191 168 122 / 0.08), transparent 62%);
+}
+.dark .ambient {
+  background:
+    radial-gradient(42rem 26rem at 10% -10%, rgb(127 184 168 / 0.09), transparent 62%),
+    radial-gradient(36rem 24rem at 92% 0%, rgb(217 124 118 / 0.06), transparent 62%),
+    radial-gradient(34rem 22rem at 65% 105%, rgb(191 168 122 / 0.05), transparent 62%);
+}
+
+/* Soft card surface */
+.panel {
+  @apply rounded-3xl border border-ink/[0.08] bg-white/75 shadow-[0_10px_34px_-20px_rgb(26_24_20/0.3)] backdrop-blur-md dark:border-paper/[0.08] dark:bg-paper/[0.04] dark:shadow-none;
+}
+
+/* Neutral inner tile */
+.tile {
+  @apply rounded-2xl bg-ink/[0.04] dark:bg-paper/[0.06];
+}
+
+/* Small uppercase label */
+.eyebrow {
+  @apply font-mono text-[11px] uppercase tracking-[0.18em] text-umber dark:text-ash;
+}
+
+/* Brand chip — ink on paper, inverted by night (echoes the logo) */
+.brand-chip {
+  @apply bg-ink text-paper dark:bg-paper dark:text-ink;
+}
