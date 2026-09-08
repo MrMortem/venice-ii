@@ -109,13 +109,17 @@ export default function EventsBoard() {
   );
   const [now, setNow] = useState(() => new Date());
 
-  // Re-check once a minute so "Today" / day counts roll over at midnight.
+  // Re-check once a minute to expire timed events and roll day counts over at midnight.
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(id);
   }, []);
 
-  const upcoming = events.filter((e) => relativeDays(e.dt, now) >= 0);
+  const upcoming = events.filter((e) =>
+    e.hasTime
+      ? e.dt.getTime() >= now.getTime()
+      : startOfDay(e.dt) >= startOfDay(now)
+  );
 
   return (
     <div className="panel flex h-full flex-col p-5 sm:p-6">

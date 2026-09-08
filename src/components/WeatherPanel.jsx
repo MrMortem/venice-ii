@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Area,
   Bar,
@@ -147,6 +147,7 @@ export default function WeatherPanel() {
   const [stationId, setStationId] = useState(STATIONS[0].id);
   const [state, setState] = useState({ status: "loading", data: null });
   const [updatedAt, setUpdatedAt] = useState(null);
+  const activeController = useRef(null);
 
   const station = useMemo(
     () => STATIONS.find((s) => s.id === stationId),
@@ -154,27 +155,37 @@ export default function WeatherPanel() {
   );
 
   const load = useCallback(
-    async (signal) => {
+    async () => {
+      activeController.current?.abort();
+      const controller = new AbortController();
+      activeController.current = controller;
+      const { signal } = controller;
       setState((s) => ({ ...s, status: "loading" }));
       try {
         const res = await fetch(apiUrl(station), { signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        if (signal.aborted) return;
         setState({ status: "ready", data });
         setUpdatedAt(new Date());
       } catch (err) {
-        if (err.name !== "AbortError") setState({ status: "error", data: null });
+        if (!signal.aborted && err.name !== "AbortError") {
+          setState({ status: "error", data: null });
+        }
+      } finally {
+        if (activeController.current === controller) {
+          activeController.current = null;
+        }
       }
     },
     [station]
   );
 
   useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal);
-    const id = setInterval(() => load(controller.signal), 10 * 60 * 1000);
+    load();
+    const id = setInterval(load, 10 * 60 * 1000);
     return () => {
-      controller.abort();
+      activeController.current?.abort();
       clearInterval(id);
     };
   }, [load]);

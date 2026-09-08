@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 /* Fallbacks: the Wright Flyer left the rail at Kitty Hawk on Dec 17, 10:35 AM. */
-const FALLBACK_DATE = "2026-12-17T10:35:00";
+const FALLBACK_DATE = "2026-12-17T10:35:00-05:00";
 const FALLBACK_LABEL = "First Flight Anniversary";
 
 function parseTarget() {
@@ -10,13 +10,10 @@ function parseTarget() {
 
   if (!raw) return { date: new Date(FALLBACK_DATE), label, invalid: false };
 
-  // Treat date-only values as local midnight instead of UTC midnight.
-  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(raw.trim())
-    ? `${raw.trim()}T00:00:00`
-    : raw.trim();
-
+  const normalized = raw.trim();
+  const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized);
   const date = new Date(normalized);
-  if (Number.isNaN(date.getTime())) {
+  if (!hasTimezone || Number.isNaN(date.getTime())) {
     return { date: new Date(FALLBACK_DATE), label, invalid: true };
   }
   return { date, label, invalid: false };

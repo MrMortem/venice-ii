@@ -100,20 +100,6 @@ export default function App() {
           </section>
         </main>
 
-        <footer className="mt-8 font-mono text-[11px] text-umber dark:text-ash">
-          <span>
-            Weather by{" "}
-            <a
-              href="https://open-meteo.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="underline decoration-dotted underline-offset-2 hover:text-ink dark:hover:text-paper"
-            >
-              Open-Meteo
-            </a>{" "}
-            — no API key
-          </span>
-        </footer>
       </div>
     </div>
   );
