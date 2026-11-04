@@ -160,7 +160,7 @@ export default function App() {
         {route === "settings" ? (
           <Settings settings={settings} persisted={persisted} onChange={update} />
         ) : (
-          <main className="grid gap-4 sm:gap-5 lg:grid-cols-12">
+          <main className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12">
             <section aria-label="Countdown" className="lg:col-span-5">
               <Countdown mode={settings.countdownMode} />
             </section>

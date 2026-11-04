@@ -39,7 +39,7 @@ function ChoiceGroup({ name, legend, options, value, onChange }) {
               onChange={() => onChange(option.value)}
               className="peer sr-only"
             />
-            <span className="block rounded-full px-2 py-2 text-center text-sm font-medium text-umber transition-colors peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-venetian dark:text-ash dark:peer-checked:bg-paper dark:peer-checked:text-ink dark:peer-focus-visible:outline-[#e08a84]">
+            <span className="block rounded-full px-1 py-2 text-center text-[0.8125rem] font-medium sm:px-2 sm:text-sm text-umber transition-colors peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-venetian dark:text-ash dark:peer-checked:bg-paper dark:peer-checked:text-ink dark:peer-focus-visible:outline-[#e08a84]">
               {option.label}
             </span>
           </label>
