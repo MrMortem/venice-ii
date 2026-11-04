@@ -137,3 +137,7 @@ test("axisWidth follows the chosen font size", () => {
   expect(axisWidth(32, "large")).toBe(36);
   expect(axisWidth(32, "small")).toBe(28);
 });
+
+test("a saved time must be a string", () => {
+  expect(parseSettings(stored({ events: [{ ...good, time: ["12:30"] }] })).events).toEqual([]);
+});

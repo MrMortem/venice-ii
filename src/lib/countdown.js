@@ -5,7 +5,15 @@ export function parseZonedDate(raw) {
   const value = raw?.trim();
   if (!value || !TIMEZONE_SUFFIX.test(value)) return null;
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
+  if (Number.isNaN(date.getTime())) return null;
+
+  // Date parsing rolls a day like Feb 31 into the next month, so check it's a real day.
+  const [, year, month, day] = /^(\d{4})-(\d{2})-(\d{2})/.exec(value) ?? [];
+  if (year) {
+    const check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCMonth() !== month - 1 || check.getUTCDate() !== Number(day)) return null;
+  }
+  return date;
 }
 
 /* Adds calendar months in local time, clamping to the last day of a shorter month. */

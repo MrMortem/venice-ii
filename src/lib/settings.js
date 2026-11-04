@@ -37,7 +37,7 @@ export function validateEventInput({ label, date, time }) {
   }
   if (!date) errors.date = "Choose a date.";
   else if (typeof date !== "string" || !isRealDate(date)) errors.date = "Enter a valid date.";
-  if (clock !== null && !/^([01]\d|2[0-3]):[0-5]\d$/.test(clock)) {
+  if (clock !== null && (typeof clock !== "string" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(clock))) {
     errors.time = "Enter a valid time.";
   }
 

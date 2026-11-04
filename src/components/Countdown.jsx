@@ -34,10 +34,12 @@ function splitDuration(ms) {
   };
 }
 
-function Cell({ value, unit, pad = true }) {
+function Cell({ value, unit, pad = true, compact = false }) {
   return (
     <div className="tile px-1 py-3.5 text-center">
-      <div className="font-mono text-3xl font-medium tabular-nums leading-none sm:text-4xl">
+      <div className={`font-mono font-medium tabular-nums leading-none sm:text-4xl ${
+          compact ? "text-2xl" : "text-3xl"
+        }`}>
         {pad ? String(value).padStart(2, "0") : value}
       </div>
       <div className="mt-2 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-umber dark:text-ash">
@@ -115,11 +117,11 @@ export default function Countdown({ mode = "days" }) {
 
       {mode === "months" && (
         <div className="mt-5 grid grid-cols-5 gap-2">
-          <Cell value={calendar.months} unit="mos" pad={false} />
-          <Cell value={calendar.days} unit="days" />
-          <Cell value={calendar.hours} unit="hrs" />
-          <Cell value={calendar.minutes} unit="min" />
-          <Cell value={calendar.seconds} unit="sec" />
+          <Cell value={calendar.months} unit="mos" pad={false} compact />
+          <Cell value={calendar.days} unit="days" compact />
+          <Cell value={calendar.hours} unit="hrs" compact />
+          <Cell value={calendar.minutes} unit="min" compact />
+          <Cell value={calendar.seconds} unit="sec" compact />
         </div>
       )}
 

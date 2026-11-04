@@ -52,7 +52,7 @@ function ChoiceGroup({ name, legend, options, value, onChange }) {
 
 const EMPTY_FORM = { label: "", date: "", time: "" };
 const INPUT_CLASS =
-  "tile mt-1 block w-full min-w-0 border border-transparent px-3 py-2 text-sm aria-invalid:border-venetian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-venetian dark:[color-scheme:dark] dark:aria-invalid:border-[#e08a84] dark:focus-visible:outline-[#e08a84]";
+  "tile mt-1 block w-full min-w-0 border border-transparent px-3 py-2 text-[max(1rem,16px)] sm:text-sm aria-invalid:border-venetian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-venetian dark:[color-scheme:dark] dark:aria-invalid:border-[#e08a84] dark:focus-visible:outline-[#e08a84]";
 const SMALL_BUTTON_CLASS =
   "rounded-full border border-ink/10 px-3 py-1 font-mono text-[0.6875rem] text-umber transition-colors hover:border-ink hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-venetian dark:border-paper/10 dark:text-ash dark:hover:border-paper dark:hover:text-paper dark:focus-visible:outline-[#e08a84]";
 
@@ -141,6 +141,7 @@ function MyEvents({ events, onChange }) {
     onChange(events.filter((event) => event.id !== id));
     setConfirmingId(null);
     if (editingId === id) resetForm();
+    nameInput.current?.focus();
   };
 
   return (
@@ -268,7 +269,7 @@ export default function Settings({ settings, persisted, onChange }) {
 
       {!persisted && (
         <p role="status" className="tile px-4 py-3 text-sm text-venetian dark:text-[#e08a84]">
-          Your browser is blocking storage, so changes won't be saved after this page closes.
+          Your browser can't save settings right now, so changes won't be kept after this page closes.
         </p>
       )}
 
