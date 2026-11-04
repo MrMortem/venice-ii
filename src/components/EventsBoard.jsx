@@ -78,7 +78,7 @@ function EventRow({ event, now, featured }) {
             {event.dt.getDate()}
           </div>
           <div
-            className={`mt-0.5 font-mono text-[9px] uppercase tracking-widest ${
+            className={`mt-0.5 font-mono text-[0.5625rem] uppercase tracking-widest ${
               featured ? "opacity-70" : "text-umber dark:text-ash"
             }`}
           >
@@ -95,7 +95,7 @@ function EventRow({ event, now, featured }) {
         </p>
       </div>
 
-      <span className="rounded-full bg-ink/[0.05] px-2.5 py-1 font-mono text-[11px] tabular-nums text-umber dark:bg-paper/[0.07] dark:text-ash">
+      <span className="rounded-full bg-ink/[0.05] px-2.5 py-1 font-mono text-[0.6875rem] tabular-nums text-umber dark:bg-paper/[0.07] dark:text-ash">
         {relLabel(days)}
       </span>
     </li>
@@ -126,7 +126,7 @@ export default function EventsBoard() {
       <div className="flex items-center justify-between gap-3">
         <p className="eyebrow">Upcoming</p>
         {upcoming.length > 0 && (
-          <span className="font-mono text-[11px] tabular-nums text-umber dark:text-ash">
+          <span className="font-mono text-[0.6875rem] tabular-nums text-umber dark:text-ash">
             {upcoming.length} scheduled
           </span>
         )}

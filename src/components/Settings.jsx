@@ -4,6 +4,12 @@ const MODE_OPTIONS = [
   { value: "percentage", label: "Percentage" },
 ];
 
+const FONT_SIZE_OPTIONS = [
+  { value: "small", label: "Small" },
+  { value: "default", label: "Default" },
+  { value: "large", label: "Large" },
+];
+
 function ChoiceGroup({ name, legend, options, value, onChange }) {
   return (
     <fieldset className="panel p-5 sm:p-6">
@@ -60,6 +66,14 @@ export default function Settings({ settings, persisted, onChange }) {
         options={MODE_OPTIONS}
         value={settings.countdownMode}
         onChange={(countdownMode) => onChange({ countdownMode })}
+      />
+
+      <ChoiceGroup
+        name="font-size"
+        legend="Font size"
+        options={FONT_SIZE_OPTIONS}
+        value={settings.fontSize}
+        onChange={(fontSize) => onChange({ fontSize })}
       />
     </main>
   );

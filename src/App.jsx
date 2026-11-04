@@ -26,6 +26,10 @@ function useTheme() {
 function useSettings() {
   const [{ settings, persisted }, setState] = useState(() => loadSettings());
 
+  useEffect(() => {
+    document.documentElement.dataset.fontSize = settings.fontSize;
+  }, [settings.fontSize]);
+
   const update = (patch) => {
     const next = { ...settings, ...patch };
     const saved = saveSettings(next);
@@ -103,7 +107,7 @@ function LocalClock() {
           second: "2-digit",
         })}
       </time>
-      <span className="font-mono text-[11px] text-umber dark:text-ash">
+      <span className="font-mono text-[0.6875rem] text-umber dark:text-ash">
         {now.toLocaleDateString([], {
           weekday: "short",
           month: "short",

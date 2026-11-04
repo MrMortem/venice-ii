@@ -40,7 +40,7 @@ function Cell({ value, unit, pad = true }) {
       <div className="font-mono text-3xl font-medium tabular-nums leading-none sm:text-4xl">
         {pad ? String(value).padStart(2, "0") : value}
       </div>
-      <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-umber dark:text-ash">
+      <div className="mt-2 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-umber dark:text-ash">
         {unit}
       </div>
     </div>
@@ -94,7 +94,7 @@ export default function Countdown({ mode = "days" }) {
     <div className="panel flex h-full flex-col p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <p className="eyebrow">Countdown</p>
-        <span className="brand-chip rounded-full px-3 py-1 font-mono text-[11px] font-medium tabular-nums">
+        <span className="brand-chip rounded-full px-3 py-1 font-mono text-[0.6875rem] font-medium tabular-nums">
           {passed ? "T+" : "T\u2212"}{days}d
         </span>
       </div>

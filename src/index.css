@@ -72,10 +72,18 @@ body {
 
 /* Small uppercase label */
 .eyebrow {
-  @apply font-mono text-[11px] uppercase tracking-[0.18em] text-umber dark:text-ash;
+  @apply font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-umber dark:text-ash;
 }
 
 /* Brand chip — ink on paper, inverted by night (echoes the logo) */
 .brand-chip {
   @apply bg-ink text-paper dark:bg-paper dark:text-ink;
+}
+
+/* Site-wide font size, chosen in Settings. Everything sized in rem follows it. */
+html[data-font-size="small"] {
+  font-size: 87.5%;
+}
+html[data-font-size="large"] {
+  font-size: 112.5%;
 }
