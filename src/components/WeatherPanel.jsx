@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { axisWidth } from "../lib/settings.js";
 
 const STATIONS = [
   {
@@ -124,7 +125,7 @@ function ChartTip({ active, payload }) {
 
 function LegendKey({ colorVar, children }) {
   return (
-    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-umber dark:text-ash">
+    <span className="inline-flex items-center gap-1.5 font-mono text-[0.6875rem] text-umber dark:text-ash">
       <span
         aria-hidden="true"
         className="h-2 w-2 rounded-full"
@@ -143,7 +144,7 @@ function Chip({ label, value }) {
   );
 }
 
-export default function WeatherPanel() {
+export default function WeatherPanel({ fontSize = "default" }) {
   const [stationId, setStationId] = useState(STATIONS[0].id);
   const [state, setState] = useState({ status: "loading", data: null });
   const [updatedAt, setUpdatedAt] = useState(null);
@@ -200,7 +201,7 @@ export default function WeatherPanel() {
         <p className="eyebrow">Forecast</p>
         <div className="flex items-center gap-3">
           {updatedAt && (
-            <span className="font-mono text-[11px] tabular-nums text-umber dark:text-ash">
+            <span className="font-mono text-[0.6875rem] tabular-nums text-umber dark:text-ash">
               Updated{" "}
               {updatedAt.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -211,7 +212,7 @@ export default function WeatherPanel() {
           <button
             type="button"
             onClick={() => load()}
-            className="rounded-full border border-ink/10 px-3 py-1 font-mono text-[11px] text-umber transition-colors hover:border-ink hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-venetian dark:border-paper/10 dark:text-ash dark:hover:border-paper dark:hover:text-paper dark:focus-visible:outline-[#e08a84]"
+            className="rounded-full border border-ink/10 px-3 py-1 font-mono text-[0.6875rem] text-umber transition-colors hover:border-ink hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-venetian dark:border-paper/10 dark:text-ash dark:hover:border-paper dark:hover:text-paper dark:focus-visible:outline-[#e08a84]"
           >
             Refresh
           </button>
@@ -326,19 +327,19 @@ export default function WeatherPanel() {
                   dy={6}
                   tick={{
                     fill: "var(--chart-axis)",
-                    fontSize: 11,
+                    fontSize: "0.6875rem",
                     fontFamily: "Geist Mono, monospace",
                   }}
                 />
                 <YAxis
                   yAxisId="t"
-                  width={38}
+                  width={axisWidth(38, fontSize)}
                   domain={["dataMin - 4", "dataMax + 4"]}
                   tickLine={false}
                   axisLine={false}
                   tick={{
                     fill: "var(--chart-axis)",
-                    fontSize: 11,
+                    fontSize: "0.6875rem",
                     fontFamily: "Geist Mono, monospace",
                   }}
                   tickFormatter={(v) => `${Math.round(v)}\u00B0`}
@@ -346,14 +347,14 @@ export default function WeatherPanel() {
                 <YAxis
                   yAxisId="p"
                   orientation="right"
-                  width={32}
+                  width={axisWidth(32, fontSize)}
                   domain={[0, 100]}
                   ticks={[0, 50, 100]}
                   tickLine={false}
                   axisLine={false}
                   tick={{
                     fill: "var(--chart-axis)",
-                    fontSize: 11,
+                    fontSize: "0.6875rem",
                     fontFamily: "Geist Mono, monospace",
                   }}
                   tickFormatter={(v) => `${v}%`}

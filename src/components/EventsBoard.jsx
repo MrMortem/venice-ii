@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { isPastEvent, toDisplayEvent } from "../lib/settings.js";
 
 /*
  * VITE_EVENTS accepts either format:
@@ -78,7 +79,7 @@ function EventRow({ event, now, featured }) {
             {event.dt.getDate()}
           </div>
           <div
-            className={`mt-0.5 font-mono text-[9px] uppercase tracking-widest ${
+            className={`mt-0.5 font-mono text-[0.5625rem] uppercase tracking-widest ${
               featured ? "opacity-70" : "text-umber dark:text-ash"
             }`}
           >
@@ -88,24 +89,36 @@ function EventRow({ event, now, featured }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{event.label}</p>
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-medium">{event.label}</p>
+          {event.personal && (
+            <span className="shrink-0 rounded-full border border-ink/10 px-1.5 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider text-umber dark:border-paper/10 dark:text-ash">
+              Personal
+            </span>
+          )}
+        </div>
         <p className="text-xs text-umber dark:text-ash">
           {sub}
           {time && ` \u00B7 ${time}`}
         </p>
       </div>
 
-      <span className="rounded-full bg-ink/[0.05] px-2.5 py-1 font-mono text-[11px] tabular-nums text-umber dark:bg-paper/[0.07] dark:text-ash">
+      <span className="rounded-full bg-ink/[0.05] px-2.5 py-1 font-mono text-[0.6875rem] tabular-nums text-umber dark:bg-paper/[0.07] dark:text-ash">
         {relLabel(days)}
       </span>
     </li>
   );
 }
 
-export default function EventsBoard() {
-  const { events, error } = useMemo(
+export default function EventsBoard({ personalEvents = [] }) {
+  const { events: siteEvents, error } = useMemo(
     () => parseEvents(import.meta.env.VITE_EVENTS),
     []
+  );
+  const events = useMemo(
+    () =>
+      [...siteEvents, ...personalEvents.map(toDisplayEvent)].sort((a, b) => a.dt - b.dt),
+    [siteEvents, personalEvents]
   );
   const [now, setNow] = useState(() => new Date());
 
@@ -115,18 +128,14 @@ export default function EventsBoard() {
     return () => clearInterval(id);
   }, []);
 
-  const upcoming = events.filter((e) =>
-    e.hasTime
-      ? e.dt.getTime() >= now.getTime()
-      : startOfDay(e.dt) >= startOfDay(now)
-  );
+  const upcoming = events.filter((e) => !isPastEvent(e, now));
 
   return (
     <div className="panel flex h-full flex-col p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <p className="eyebrow">Upcoming</p>
         {upcoming.length > 0 && (
-          <span className="font-mono text-[11px] tabular-nums text-umber dark:text-ash">
+          <span className="font-mono text-[0.6875rem] tabular-nums text-umber dark:text-ash">
             {upcoming.length} scheduled
           </span>
         )}
@@ -136,7 +145,7 @@ export default function EventsBoard() {
         <ul className="mt-4 space-y-3">
           {upcoming.map((event, i) => (
             <EventRow
-              key={`${event.dt.toISOString()}-${event.label}`}
+              key={event.id ?? `${event.dt.toISOString()}-${event.label}`}
               event={event}
               now={now}
               featured={i === 0}

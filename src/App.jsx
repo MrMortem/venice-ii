@@ -3,6 +3,8 @@ import Countdown from "./components/Countdown.jsx";
 import EventsBoard from "./components/EventsBoard.jsx";
 import WeatherPanel from "./components/WeatherPanel.jsx";
 import ThemeToggle from "./components/ThemeToggle.jsx";
+import Settings from "./components/Settings.jsx";
+import { loadSettings, saveSettings, subscribeToSettings } from "./lib/settings.js";
 
 function useTheme() {
   const [theme, setTheme] = useState(() =>
@@ -11,10 +13,75 @@ function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Storage is blocked; the theme still applies for this page view.
+    }
   }, [theme]);
 
   return [theme, () => setTheme((t) => (t === "dark" ? "light" : "dark"))];
+}
+
+function useSettings() {
+  const [{ settings, persisted }, setState] = useState(() => loadSettings());
+
+  useEffect(() => {
+    document.documentElement.dataset.fontSize = settings.fontSize;
+  }, [settings.fontSize]);
+
+  useEffect(
+    () =>
+      subscribeToSettings((latest) =>
+        setState((current) => ({ ...current, settings: latest }))
+      ),
+    []
+  );
+
+  const update = (patch) => {
+    const next = { ...settings, ...patch };
+    const saved = saveSettings(next);
+    setState({ settings: next, persisted: persisted && saved });
+  };
+
+  return { settings, persisted, update };
+}
+
+const routeFromHash = () =>
+  window.location.hash === "#/settings" ? "settings" : "dashboard";
+
+function useHashRoute() {
+  const [route, setRoute] = useState(routeFromHash);
+
+  useEffect(() => {
+    const onChange = () => setRoute(routeFromHash());
+    window.addEventListener("hashchange", onChange);
+    return () => window.removeEventListener("hashchange", onChange);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route]);
+
+  return route;
+}
+
+function GearIcon(props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-2.82-1.17l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.26 14H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.17-2.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 10 3.26V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 2.82 1.17l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.74 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+    </svg>
+  );
 }
 
 /* The VII mark, redrawn as a vector so it follows the current text color. */
@@ -48,7 +115,7 @@ function LocalClock() {
           second: "2-digit",
         })}
       </time>
-      <span className="font-mono text-[11px] text-umber dark:text-ash">
+      <span className="font-mono text-[0.6875rem] text-umber dark:text-ash">
         {now.toLocaleDateString([], {
           weekday: "short",
           month: "short",
@@ -61,6 +128,8 @@ function LocalClock() {
 
 export default function App() {
   const [theme, toggleTheme] = useTheme();
+  const { settings, persisted, update } = useSettings();
+  const route = useHashRoute();
 
   return (
     <div className="min-h-screen">
@@ -84,21 +153,34 @@ export default function App() {
 
           <div className="flex items-center gap-4">
             <LocalClock />
+            <a
+              href="#/settings"
+              aria-label="Settings"
+              aria-current={route === "settings" ? "page" : undefined}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-ink/10 bg-ink/[0.05] text-umber transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-venetian dark:border-paper/10 dark:bg-paper/[0.08] dark:text-ash dark:hover:text-paper dark:focus-visible:outline-[#e08a84]"
+            >
+              <GearIcon className="h-4 w-4" />
+            </a>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </header>
 
-        <main className="grid gap-4 sm:gap-5 lg:grid-cols-12">
+        {/* The dashboard stays mounted so the chosen city and loaded forecast survive a visit to Settings. */}
+        <main className={route === "settings" ? "hidden" : "grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12"}>
           <section aria-label="Countdown" className="lg:col-span-5">
-            <Countdown />
+            <Countdown mode={settings.countdownMode} />
           </section>
           <section aria-label="Weather" className="lg:col-span-7 lg:row-span-2">
-            <WeatherPanel />
+            <WeatherPanel fontSize={settings.fontSize} />
           </section>
           <section aria-label="Upcoming events" className="lg:col-span-5">
-            <EventsBoard />
+            <EventsBoard personalEvents={settings.events} />
           </section>
         </main>
+
+        {route === "settings" && (
+          <Settings settings={settings} persisted={persisted} onChange={update} />
+        )}
 
       </div>
     </div>

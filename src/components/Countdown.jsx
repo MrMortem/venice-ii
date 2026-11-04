@@ -1,4 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  parseZonedDate,
+  progressPercent,
+  resolveStart,
+  splitCalendar,
+} from "../lib/countdown.js";
 
 /* Fallbacks: the Wright Flyer left the rail at Kitty Hawk on Dec 17, 10:35 AM. */
 const FALLBACK_DATE = "2026-12-17T10:35:00-05:00";
@@ -7,16 +13,15 @@ const FALLBACK_LABEL = "First Flight Anniversary";
 function parseTarget() {
   const raw = import.meta.env.VITE_COUNTDOWN_DATE;
   const label = import.meta.env.VITE_COUNTDOWN_LABEL || FALLBACK_LABEL;
+  const parsed = parseZonedDate(raw);
+  const date = parsed ?? new Date(FALLBACK_DATE);
 
-  if (!raw) return { date: new Date(FALLBACK_DATE), label, invalid: false };
-
-  const normalized = raw.trim();
-  const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized);
-  const date = new Date(normalized);
-  if (!hasTimezone || Number.isNaN(date.getTime())) {
-    return { date: new Date(FALLBACK_DATE), label, invalid: true };
-  }
-  return { date, label, invalid: false };
+  return {
+    date,
+    label,
+    invalid: Boolean(raw) && !parsed,
+    start: resolveStart(date, import.meta.env.VITE_COUNTDOWN_START),
+  };
 }
 
 function splitDuration(ms) {
@@ -35,14 +40,34 @@ function Cell({ value, unit, pad = true }) {
       <div className="font-mono text-3xl font-medium tabular-nums leading-none sm:text-4xl">
         {pad ? String(value).padStart(2, "0") : value}
       </div>
-      <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-umber dark:text-ash">
+      <div className="mt-2 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-umber dark:text-ash">
         {unit}
       </div>
     </div>
   );
 }
 
-export default function Countdown() {
+function Progress({ percent, label }) {
+  return (
+    <div className="mt-5">
+      <div className="font-mono text-5xl font-medium tabular-nums leading-none sm:text-6xl">
+        {percent.toFixed(1)}%
+      </div>
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+        aria-label={`Progress to ${label}`}
+        className="tile mt-4 h-3 overflow-hidden rounded-full"
+      >
+        <div className="brand-chip h-full rounded-full" style={{ width: `${percent}%` }} />
+      </div>
+    </div>
+  );
+}
+
+export default function Countdown({ mode = "days" }) {
   const target = useMemo(parseTarget, []);
   const [now, setNow] = useState(() => Date.now());
 
@@ -54,6 +79,7 @@ export default function Countdown() {
   const diff = target.date.getTime() - now;
   const passed = diff < 0;
   const { days, hours, minutes, seconds } = splitDuration(diff);
+  const calendar = splitCalendar(new Date(now), target.date);
 
   const targetLine = target.date.toLocaleString([], {
     weekday: "short",
@@ -68,7 +94,7 @@ export default function Countdown() {
     <div className="panel flex h-full flex-col p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <p className="eyebrow">Countdown</p>
-        <span className="brand-chip rounded-full px-3 py-1 font-mono text-[11px] font-medium tabular-nums">
+        <span className="brand-chip rounded-full px-3 py-1 font-mono text-[0.6875rem] font-medium tabular-nums">
           {passed ? "T+" : "T\u2212"}{days}d
         </span>
       </div>
@@ -80,12 +106,31 @@ export default function Countdown() {
         {passed ? "Elapsed since" : "Scheduled"} {targetLine}
       </p>
 
-      <div className="mt-5 grid grid-cols-4 gap-2">
-        <Cell value={days} unit="days" pad={false} />
-        <Cell value={hours} unit="hrs" />
-        <Cell value={minutes} unit="min" />
-        <Cell value={seconds} unit="sec" />
-      </div>
+      {mode === "percentage" && (
+        <Progress
+          percent={progressPercent(now, target.start.getTime(), target.date.getTime())}
+          label={target.label}
+        />
+      )}
+
+      {mode === "months" && (
+        <div className="mt-5 grid grid-cols-5 gap-2">
+          <Cell value={calendar.months} unit="mos" pad={false} />
+          <Cell value={calendar.days} unit="days" />
+          <Cell value={calendar.hours} unit="hrs" />
+          <Cell value={calendar.minutes} unit="min" />
+          <Cell value={calendar.seconds} unit="sec" />
+        </div>
+      )}
+
+      {mode === "days" && (
+        <div className="mt-5 grid grid-cols-4 gap-2">
+          <Cell value={days} unit="days" pad={false} />
+          <Cell value={hours} unit="hrs" />
+          <Cell value={minutes} unit="min" />
+          <Cell value={seconds} unit="sec" />
+        </div>
+      )}
 
       {target.invalid && (
         <div className="mt-auto pt-5">
