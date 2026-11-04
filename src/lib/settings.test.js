@@ -1,11 +1,15 @@
 import { expect, test } from "vitest";
 import {
   DEFAULT_SETTINGS,
+  STORAGE_KEY,
+  axisWidth,
   createEventId,
+  isConfirmReady,
   isPastEvent,
   loadSettings,
   parseSettings,
   saveSettings,
+  subscribeToSettings,
   toDisplayEvent,
   validateEventInput,
 } from "./settings.js";
@@ -98,4 +102,38 @@ test("isPastEvent follows the Upcoming card's expiry rules", () => {
   const timed = toDisplayEvent({ ...good, time: "18:30" });
   expect(isPastEvent(timed, new Date(2027, 7, 14, 18, 30))).toBe(false);
   expect(isPastEvent(timed, new Date(2027, 7, 14, 18, 31))).toBe(true);
+});
+
+const storageEvent = (key, newValue) => Object.assign(new Event("storage"), { key, newValue });
+
+test("subscribeToSettings reports changes saved by another tab", () => {
+  const target = new EventTarget();
+  const seen = [];
+  const unsubscribe = subscribeToSettings((s) => seen.push(s), target);
+
+  target.dispatchEvent(storageEvent(STORAGE_KEY, stored({ events: [good] })));
+  expect(seen).toHaveLength(1);
+  expect(seen[0].events).toEqual([good]);
+
+  target.dispatchEvent(storageEvent(null, null));
+  expect(seen[1]).toEqual(DEFAULT_SETTINGS);
+
+  target.dispatchEvent(storageEvent("theme", "dark"));
+  expect(seen).toHaveLength(2);
+
+  unsubscribe();
+  target.dispatchEvent(storageEvent(STORAGE_KEY, stored()));
+  expect(seen).toHaveLength(2);
+});
+
+test("isConfirmReady ignores the second click of a double-click", () => {
+  expect(isConfirmReady(1000, 1100)).toBe(false);
+  expect(isConfirmReady(1000, 1399)).toBe(false);
+  expect(isConfirmReady(1000, 1400)).toBe(true);
+});
+
+test("axisWidth follows the chosen font size", () => {
+  expect(axisWidth(32, "default")).toBe(32);
+  expect(axisWidth(32, "large")).toBe(36);
+  expect(axisWidth(32, "small")).toBe(28);
 });

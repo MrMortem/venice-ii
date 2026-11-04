@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
   createEventId,
+  isConfirmReady,
   isPastEvent,
   toDisplayEvent,
   validateEventInput,
@@ -95,6 +96,7 @@ function MyEvents({ events, onChange }) {
   const [errors, setErrors] = useState({});
   const [editingId, setEditingId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
+  const confirmArmedAt = useRef(0);
   const nameInput = useRef(null);
 
   const now = new Date();
@@ -222,7 +224,9 @@ function MyEvents({ events, onChange }) {
                   <button
                     type="button"
                     aria-label={`Confirm deleting ${event.label}`}
-                    onClick={() => remove(event.id)}
+                    onClick={() => {
+                      if (isConfirmReady(confirmArmedAt.current, Date.now())) remove(event.id);
+                    }}
                     className={`${SMALL_BUTTON_CLASS} text-venetian dark:text-[#e08a84]`}
                   >
                     Confirm
@@ -231,7 +235,10 @@ function MyEvents({ events, onChange }) {
                   <button
                     type="button"
                     aria-label={`Delete ${event.label}`}
-                    onClick={() => setConfirmingId(event.id)}
+                    onClick={() => {
+                      confirmArmedAt.current = Date.now();
+                      setConfirmingId(event.id);
+                    }}
                     className={SMALL_BUTTON_CLASS}
                   >
                     Delete

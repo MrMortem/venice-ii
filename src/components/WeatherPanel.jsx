@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { axisWidth } from "../lib/settings.js";
 
 const STATIONS = [
   {
@@ -122,12 +123,6 @@ function ChartTip({ active, payload }) {
   );
 }
 
-/* Recharts axis widths are in pixels, so they grow with the site font size. */
-const axisWidth = (px) => {
-  const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  return Math.ceil(px * ((rootSize || 16) / 16));
-};
-
 function LegendKey({ colorVar, children }) {
   return (
     <span className="inline-flex items-center gap-1.5 font-mono text-[0.6875rem] text-umber dark:text-ash">
@@ -149,7 +144,7 @@ function Chip({ label, value }) {
   );
 }
 
-export default function WeatherPanel() {
+export default function WeatherPanel({ fontSize = "default" }) {
   const [stationId, setStationId] = useState(STATIONS[0].id);
   const [state, setState] = useState({ status: "loading", data: null });
   const [updatedAt, setUpdatedAt] = useState(null);
@@ -338,7 +333,7 @@ export default function WeatherPanel() {
                 />
                 <YAxis
                   yAxisId="t"
-                  width={axisWidth(38)}
+                  width={axisWidth(38, fontSize)}
                   domain={["dataMin - 4", "dataMax + 4"]}
                   tickLine={false}
                   axisLine={false}
@@ -352,7 +347,7 @@ export default function WeatherPanel() {
                 <YAxis
                   yAxisId="p"
                   orientation="right"
-                  width={axisWidth(32)}
+                  width={axisWidth(32, fontSize)}
                   domain={[0, 100]}
                   ticks={[0, 50, 100]}
                   tickLine={false}

@@ -4,7 +4,7 @@ import EventsBoard from "./components/EventsBoard.jsx";
 import WeatherPanel from "./components/WeatherPanel.jsx";
 import ThemeToggle from "./components/ThemeToggle.jsx";
 import Settings from "./components/Settings.jsx";
-import { loadSettings, saveSettings } from "./lib/settings.js";
+import { loadSettings, saveSettings, subscribeToSettings } from "./lib/settings.js";
 
 function useTheme() {
   const [theme, setTheme] = useState(() =>
@@ -29,6 +29,14 @@ function useSettings() {
   useEffect(() => {
     document.documentElement.dataset.fontSize = settings.fontSize;
   }, [settings.fontSize]);
+
+  useEffect(
+    () =>
+      subscribeToSettings((latest) =>
+        setState((current) => ({ ...current, settings: latest }))
+      ),
+    []
+  );
 
   const update = (patch) => {
     const next = { ...settings, ...patch };
@@ -157,20 +165,21 @@ export default function App() {
           </div>
         </header>
 
-        {route === "settings" ? (
+        {/* The dashboard stays mounted so the chosen city and loaded forecast survive a visit to Settings. */}
+        <main className={route === "settings" ? "hidden" : "grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12"}>
+          <section aria-label="Countdown" className="lg:col-span-5">
+            <Countdown mode={settings.countdownMode} />
+          </section>
+          <section aria-label="Weather" className="lg:col-span-7 lg:row-span-2">
+            <WeatherPanel fontSize={settings.fontSize} />
+          </section>
+          <section aria-label="Upcoming events" className="lg:col-span-5">
+            <EventsBoard personalEvents={settings.events} />
+          </section>
+        </main>
+
+        {route === "settings" && (
           <Settings settings={settings} persisted={persisted} onChange={update} />
-        ) : (
-          <main className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12">
-            <section aria-label="Countdown" className="lg:col-span-5">
-              <Countdown mode={settings.countdownMode} />
-            </section>
-            <section aria-label="Weather" className="lg:col-span-7 lg:row-span-2">
-              <WeatherPanel />
-            </section>
-            <section aria-label="Upcoming events" className="lg:col-span-5">
-              <EventsBoard personalEvents={settings.events} />
-            </section>
-          </main>
         )}
 
       </div>

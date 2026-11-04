@@ -89,6 +89,17 @@ export function saveSettings(settings, getStorage = browserStorage) {
   }
 }
 
+/* Keeps an open tab current, so its next save can't overwrite another tab's changes. */
+export function subscribeToSettings(onChange, target = window) {
+  const listener = (event) => {
+    if (event.key === STORAGE_KEY || event.key === null) {
+      onChange(parseSettings(event.newValue));
+    }
+  };
+  target.addEventListener("storage", listener);
+  return () => target.removeEventListener("storage", listener);
+}
+
 /* crypto.randomUUID is missing on plain-HTTP origins. */
 export function createEventId() {
   return (
@@ -114,4 +125,18 @@ export function isPastEvent(event, now) {
   return event.hasTime
     ? event.dt.getTime() < now.getTime()
     : startOfDay(event.dt) < startOfDay(now);
+}
+
+/* Confirm ignores clicks this soon after arming, so a double-click on Delete can't confirm. */
+const CONFIRM_DELAY_MS = 400;
+
+export function isConfirmReady(armedAt, now) {
+  return now - armedAt >= CONFIRM_DELAY_MS;
+}
+
+const FONT_SCALE = { small: 0.875, default: 1, large: 1.125 };
+
+/* Recharts axis widths are in pixels, so they grow with the site font size. */
+export function axisWidth(px, fontSize) {
+  return Math.ceil(px * FONT_SCALE[fontSize]);
 }
