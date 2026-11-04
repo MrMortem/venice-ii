@@ -168,7 +168,7 @@ export default function App() {
               <WeatherPanel />
             </section>
             <section aria-label="Upcoming events" className="lg:col-span-5">
-              <EventsBoard />
+              <EventsBoard personalEvents={settings.events} />
             </section>
           </main>
         )}
