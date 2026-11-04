@@ -22,9 +22,9 @@
         if (dark) document.documentElement.classList.add("dark");
 
         try {
-          var size = JSON.parse(localStorage.getItem("venice-ii:settings")).fontSize;
-          if (size === "small" || size === "large") {
-            document.documentElement.dataset.fontSize = size;
+          var saved = JSON.parse(localStorage.getItem("venice-ii:settings"));
+          if (saved.version === 1 && (saved.fontSize === "small" || saved.fontSize === "large")) {
+            document.documentElement.dataset.fontSize = saved.fontSize;
           }
         } catch (e) {}
       })();

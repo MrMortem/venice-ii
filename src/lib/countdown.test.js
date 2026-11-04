@@ -71,3 +71,12 @@ test("parseZonedDate requires a valid date with a timezone", () => {
   expect(parseZonedDate("garbage")).toBeNull();
   expect(parseZonedDate(undefined)).toBeNull();
 });
+
+test("parseZonedDate rejects impossible dates instead of rolling them over", () => {
+  expect(parseZonedDate("2027-02-31T00:00:00Z")).toBeNull();
+  expect(parseZonedDate("2028-02-29T00:00:00Z")).toEqual(new Date("2028-02-29T00:00:00Z"));
+});
+
+test("tests run in a fixed timezone", () => {
+  expect(new Date(2027, 0, 1).getTimezoneOffset()).toBe(300);
+});

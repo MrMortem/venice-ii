@@ -41,7 +41,7 @@ function useSettings() {
   const update = (patch) => {
     const next = { ...settings, ...patch };
     const saved = saveSettings(next);
-    setState({ settings: next, persisted: persisted && saved });
+    setState({ settings: next, persisted: saved });
   };
 
   return { settings, persisted, update };
@@ -138,9 +138,9 @@ export default function App() {
       <div aria-hidden="true" className="fixed inset-x-0 top-0 z-20 h-[2px] bg-ink dark:bg-paper/90" />
 
       <div className="mx-auto max-w-6xl px-4 pb-10 pt-7 sm:px-6 sm:pt-9">
-        <header className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
-          <div className="flex items-center gap-3.5">
-            <Mark className="h-8 w-8 shrink-0" />
+        <header className="mb-6 flex items-center justify-between gap-2 sm:mb-8 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3.5">
+            <Mark className="h-7 w-7 shrink-0 sm:h-8 sm:w-8" />
             <div>
               <h1 className="font-display text-base font-light uppercase leading-none tracking-[0.4em] sm:text-lg">
                 Venice&nbsp;II
@@ -151,7 +151,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <LocalClock />
             <a
               href="#/settings"
